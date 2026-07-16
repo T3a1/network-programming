@@ -1,0 +1,135 @@
+use poll return value
+encapsulate Socket()
+write the AEL protocol
+start the Client dev
+Use logger to pass some basic tests
+
+The 3 main parts of the myTeams project are:
+	I 	- The Server
+	II 	- The Client
+	III - The Save and Load features
+
+Project schema:
+
+		client 										|			server
+													|
+													|
+/create <team name> <team description> 				|		CRT
+/create <channel name> <chanel description>			|		CRC
+/create <thread title> <thread description>			|		CRH
+/create <comment body>								|		CRR
+
+/use
+/use <team_uuid>									|		USE <team_uuid>
+/use <team_uuid> <channel_uuid>						|		USE <team_uuid> <channel_uuid>
+/use <team_uuid> <channel_uuid> <thread_uuid>		|		USE <team_uuid> <channel_uuid> <thread_uuid>
+
+The context (use) will be handled directly by the client.
+The server-side USE call will only exist to say if uuids exist and are valid.
+
+For error handling
+We currently have 3 types:
+	Critical / Major / Minor
+It will probably be interesting to implement error types with 3 digits code (RFC style).
+Better error handling and will help for client to parse answers from the server.
+
+IMPORTANT
+Direct messages have not been discussed yet.
+
+
+Léandre's todo part:
+	Add method in all Coms children classes
+		=> add_user
+		=> getUUID_name (use uuid_parse)
+	Move the uuid generator to all Comms constructors
+
+
+Actions:
+	main
+		=> Server (build Engine)
+		=> Engine (load Users in its _users);
+			=> create each User from a `users.json` file
+
+
+Load feature (Eliott's Parsing):
+	- username
+	- user uuid
+	- user teams uuid
+	- user channel uuid
+	- user thread uuid
+	- user comment uuid
+	(eventually more parameters that I don't know of yet...)
+
+
+Codes list:
+
+FORMAT:
+----------------------------------------------
+fonction logger | code | arguments nécessaires
+when should be called
+----------------------------------------------
+
+client_event_logged_in | 220 | user_uuid, user_name
+	When a user successfully logs in (including yourself, after /login)
+client_event_logged_out | 221 | user_uuid, user_name
+	When a user logs out or disconnects (including yourself, after /logout)
+client_error_already_exist | 230 | (void)
+	When trying to create a resource (team, channel, thread) that already exists
+
+client_event_private_message_received | 2000 | user_uuid, message_body
+	When you receive a private message from another user
+client_event_thread_reply_received | 2001 | team_uuid, thread_uuid, user_uuid, reply_body
+	When a new reply is posted in a thread you are subscribed to
+client_event_team_created | 2002 | team_uuid, team_name, team_description
+	When a new team is created (all logged-in users notified)
+client_event_channel_created | 2003 | channel_uuid, channel_name, channel_description
+	When a new channel is created in a team you are subscribed to
+client_event_thread_created | 2004 | thread_uuid, user_uuid, thread_timestamp, thread_title, thread_body
+	When a new thread is created in a channel you are subscribed to
+
+client_print_users | 2100 | user_uuid, user_name, user_status
+	For each user in a user list (e.g. /users, /subscribed)
+client_print_teams | 2101 | team_uuid, team_name, team_description
+	For each team in a team list (e.g. /list, /subscribed)
+client_team_print_channels | 2102 | channel_uuid, channel_name, channel_description
+	For each channel in a channel list (e.g. /list)
+client_channel_print_threads | 2103 | thread_uuid, user_uuid, thread_timestamp, thread_title, thread_body
+	For each thread in a thread list (e.g. /list)
+client_thread_print_replies | 2104 | thread_uuid, user_uuid, reply_timestamp, reply_body
+	For each reply in a reply list (e.g. /list)
+client_private_message_print_messages | 2105 | sender_uuid, message_timestamp, message_body
+	For each private message in a message list (e.g. /messages)
+
+client_print_user | 2200 | user_uuid, user_name, user_status
+	When requesting info about a single user (e.g. /user, /info)
+client_print_team | 2201 | team_uuid, team_name, team_description
+	When requesting info about a single team (e.g. /info)
+client_print_channel | 2202 | channel_uuid, channel_name, channel_description
+	When requesting info about a single channel (e.g. /info)
+client_print_thread | 2203 | thread_uuid, user_uuid, thread_timestamp, thread_title, thread_body
+	When requesting info about a single thread (e.g. /info)
+
+client_print_team_created | 2300 | team_uuid, team_name, team_description
+	When you successfully create a team
+client_print_channel_created | 2301 | channel_uuid, channel_name, channel_description
+	When you successfully create a channel
+client_print_thread_created | 2302 | thread_uuid, user_uuid, thread_timestamp, thread_title, thread_body
+	When you successfully create a thread
+client_print_reply_created | 2303 | thread_uuid, user_uuid, reply_timestamp, reply_body
+	When you successfully create a reply
+
+client_print_subscribed | 2400 | user_uuid, team_uuid
+	When you successfully subscribe to a team
+client_print_unsubscribed | 2401 | user_uuid, team_uuid
+	When you successfully unsubscribe from a team
+
+client_error_unknown_team | 4001 | team_uuid
+	When trying to access a team that does not exist
+client_error_unknown_channel | 4002 | channel_uuid
+	When trying to access a channel that does not exist
+client_error_unknown_thread | 4003 | thread_uuid
+	When trying to access a thread that does not exist
+client_error_unknown_user | 4004 | user_uuid
+	When trying to access a user that does not exist
+client_error_unauthorized | 4005 | (void)
+	When trying to perform an action you are not authorized to do

@@ -1,0 +1,9 @@
+*.o
+vgcore*
+.vscode
+client
+myclient
+myftp
+test.sh
+Doxyfile
+latex

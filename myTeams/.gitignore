@@ -1,0 +1,9 @@
+G-NWP-400_myTeams.pdf
+*.o
+vgcore*
+latex
+.vscode
+myteams_server
+myteams_cli
+*.sublime*
+*.AEL
