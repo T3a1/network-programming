@@ -1,0 +1,15 @@
+# Build outputs
+*.o
+vgcore.*
+myftp/myftp
+myteams/myteams_server
+myteams/myteams_cli
+
+# Generated documentation and notes
+*.pdf
+html/
+latex/
+todo.txt
+
+# Editors
+.vscode/
